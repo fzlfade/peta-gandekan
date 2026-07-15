@@ -3,149 +3,95 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin — Data Warga Gandekan</title>
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @endif
-    <style>
-        :root {
-            --background: 0 0% 100%;
-            --foreground: 0 0% 3.6%;
-            --card: 0 0% 100%;
-            --card-foreground: 0 0% 3.6%;
-            --muted: 0 0% 96.1%;
-            --muted-foreground: 0 0% 45.1%;
-            --border: 0 0% 89.8%;
-            --input: 0 0% 89.8%;
-            --primary: 200 100% 50%;
-            --primary-foreground: 0 0% 100%;
-            --destructive: 0 84% 60%;
-            --destructive-foreground: 0 0% 100%;
-            --radius: 0.5rem;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --background: 0 0% 3.6%;
-                --foreground: 0 0% 98.2%;
-                --card: 0 0% 10%;
-                --card-foreground: 0 0% 98.2%;
-                --muted: 0 0% 14.9%;
-                --muted-foreground: 0 0% 63.9%;
-                --border: 0 0% 14.9%;
-                --input: 0 0% 14.9%;
-                --primary: 200 100% 50%;
-                --primary-foreground: 0 0% 0%;
-            }
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, sans-serif; background: hsl(var(--background)); color: hsl(var(--foreground)); }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
-        .card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 1.5rem; }
-        .flex { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
-        .gap-2 { gap: 0.5rem; }
-        .mb-6 { margin-bottom: 1.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .text-lg { font-size: 1.125rem; }
-        .font-bold { font-weight: 700; }
-        .text-sm { font-size: 0.875rem; }
-        .text-xs { font-size: 0.75rem; }
-        .text-muted { color: hsl(var(--muted-foreground)); }
-        .text-center { text-align: center; }
-        .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 0.75rem 0.5rem; border-bottom: 1px solid hsl(var(--border)); font-size: 0.875rem; }
-        th { font-weight: 600; color: hsl(var(--muted-foreground)); }
-        tr:hover td { background: hsl(var(--muted) / 0.5); }
-        .btn {
-            display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem;
-            border-radius: var(--radius); font-size: 0.875rem; font-weight: 500;
-            text-decoration: none; border: 1px solid transparent; cursor: pointer;
-            transition: all 0.15s; font-family: inherit;
-        }
-        .btn-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
-        .btn-primary:hover { opacity: 0.9; }
-        .btn-outline { background: transparent; color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
-        .btn-outline:hover { background: hsl(var(--muted)); }
-        .btn-destructive { background: hsl(var(--destructive)); color: hsl(var(--destructive-foreground)); }
-        .btn-destructive:hover { opacity: 0.9; }
-        .btn-sm { padding: 0.25rem 0.75rem; font-size: 0.75rem; }
-        .alert { padding: 0.75rem 1rem; border-radius: var(--radius); font-size: 0.875rem; margin-bottom: 1rem; }
-        .alert-success { background: hsl(160 84% 39% / 0.15); color: hsl(160 84% 39%); border: 1px solid hsl(160 84% 39% / 0.3); }
-        .grid-cols { display: grid; gap: 1rem; }
-        .col-span-2 { grid-column: span 2; }
-        label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem; }
-        input, textarea {
-            width: 100%; padding: 0.5rem 0.75rem; border: 1px solid hsl(var(--input));
-            border-radius: var(--radius); font-size: 0.875rem; background: hsl(var(--card));
-            color: hsl(var(--foreground)); font-family: inherit;
-        }
-        input:focus, textarea:focus { outline: none; border-color: hsl(var(--primary)); box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2); }
-        .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap; }
-        .pagination a, .pagination span {
-            padding: 0.375rem 0.75rem; border-radius: var(--radius); font-size: 0.875rem;
-            text-decoration: none; border: 1px solid hsl(var(--border)); color: hsl(var(--foreground));
-        }
-        .pagination a:hover { background: hsl(var(--muted)); }
-        .pagination .active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: hsl(var(--primary)); }
-        @media (max-width: 768px) { .grid-cols { grid-template-columns: 1fr; } }
-    </style>
+    <title>Data Warga — Rumah Kita Gandekan</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="container">
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+<body class="font-sans antialiased bg-gray-50 dark:bg-gray-950">
+    @include('layouts.navigation')
 
-        <div class="flex mb-6">
-            <div>
-                <h1 class="text-lg font-bold">Data Warga</h1>
-                <p class="text-sm text-muted">Kelola data rumah warga Gandekan</p>
+    <div class="py-10">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            @if (session('success'))
+                <div class="mb-6 px-5 py-4 rounded-xl bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800 text-sm flex items-center gap-2">
+                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Data Warga</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Kelola data rumah warga Gandekan</p>
+                </div>
+                <a href="{{ route('admin.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-600/25 transition-all hover:-translate-y-0.5">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    Tambah Data
+                </a>
             </div>
-            <a href="{{ route('admin.create') }}" class="btn btn-primary">+ Tambah Data</a>
-        </div>
 
-        <div class="card">
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Nama Pemilik</th>
-                            <th>Alamat</th>
-                            <th>Latitude</th>
-                            <th>Longitude</th>
-                            <th style="text-align:center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($wargas as $w)
-                            <tr>
-                                <td class="text-muted">{{ $w->id }}</td>
-                                <td>{{ $w->nama_pemilik }}</td>
-                                <td class="text-sm text-muted" style="max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $w->alamat }}</td>
-                                <td class="text-xs">{{ $w->latitude }}</td>
-                                <td class="text-xs">{{ $w->longitude }}</td>
-                                <td style="text-align:center">
-                                    <a href="{{ route('admin.edit', $w) }}" class="btn btn-outline btn-sm">Edit</a>
-                                    <form action="{{ route('admin.destroy', $w) }}" method="POST" style="display:inline"
-                                        onsubmit="return confirm('Hapus data {{ $w->nama_pemilik }}?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-destructive btn-sm">Hapus</button>
-                                    </form>
-                                </td>
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                        <thead>
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">#</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nama Pemilik</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Alamat</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Koordinat</th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aksi</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center text-muted" style="padding:2rem;">Belum ada data warga.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                            @forelse ($wargas as $w)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                                    <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-mono">{{ $w->id }}</td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ $w->nama_pemilik }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">{{ $w->alamat }}</td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                                            <div>{{ round($w->latitude, 6) }}</div>
+                                            <div>{{ round($w->longitude, 6) }}</div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center justify-center gap-3">
+                                            <a href="{{ route('admin.edit', $w) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-lg transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
+                                                Edit
+                                            </a>
+                                            <form action="{{ route('admin.destroy', $w) }}" method="POST" onsubmit="return confirm('Hapus data warga ini?')" class="inline">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors">
+                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="px-6 py-16 text-center">
+                                        <div class="flex flex-col items-center gap-2">
+                                            <svg class="w-12 h-12 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
+                                            <p class="text-gray-500 dark:text-gray-400 font-medium">Belum ada data warga</p>
+                                            <a href="{{ route('admin.create') }}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Tambah data pertama</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <div class="pagination">
-            {{ $wargas->links() }}
+            @if ($wargas->hasPages())
+                <div class="mt-6">
+                    {{ $wargas->links() }}
+                </div>
+            @endif
         </div>
     </div>
 </body>
