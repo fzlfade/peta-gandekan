@@ -1,104 +1,190 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="light">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Peta — Rumah Kita Gandekan</title>
+    <title>Peta Warga Gandekan | Community Portal</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300..900;1,300..900&family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <!-- Leaflet & App Styles -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-screen bg-white dark:bg-gray-900">
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <div class="w-full md:w-96 flex flex-col bg-white dark:bg-gray-800 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700">
-            <!-- Header -->
-            <div class="p-6 border-b border-gray-200 dark:border-gray-700 shrink-0">
-                <a href="/" class="inline-flex items-center gap-2 mb-4 text-lg font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" /></svg>
-                    Rumah Kita Gandekan
-                </a>
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Daftar Warga</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Klik untuk navigasi ke lokasi</p>
-            </div>
-
-            <!-- Search -->
-            <div class="px-6 py-3 border-b border-gray-200 dark:border-gray-700 shrink-0">
-                <input type="text" id="search" placeholder="🔍 Cari nama pemilik..." oninput="filterResidents(this.value)" class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
-            </div>
-
-            <!-- List -->
-            <div id="resident-list" class="flex-1 overflow-y-auto p-4 space-y-2"></div>
+<body class="bg-background text-on-surface font-body-md overflow-hidden h-screen flex flex-col">
+    <!-- TopNavBar -->
+    <header class="fixed top-0 left-0 w-full h-[64px] z-50 flex justify-between items-center px-md bg-surface-container-lowest border-b border-outline-variant shadow-sm">
+        <div class="flex items-center gap-md">
+            <a href="/" class="text-headline-lg font-headline-lg text-primary font-bold tracking-tight">Peta Warga Gandekan</a>
         </div>
+        <!-- Search Bar -->
+        <div class="hidden md:flex flex-1 max-w-xl mx-xl relative items-center">
+            <span class="material-symbols-outlined absolute left-md text-on-surface-variant pointer-events-none">search</span>
+            <input id="search" oninput="filterResidents(this.value)" class="w-full bg-surface-container-low border border-outline-variant rounded px-xl py-xs pl-[48px] focus:ring-2 focus:ring-primary focus:outline-none text-body-md text-on-surface" placeholder="Cari Nama Warga atau Alamat..." type="text"/>
+        </div>
+        <div class="flex items-center gap-md">
+            <a href="/" class="p-2 hover:bg-surface-container-low transition-colors rounded-full text-on-surface-variant flex items-center gap-1 font-label-md text-sm">
+                <span class="material-symbols-outlined text-[20px]">home</span>
+                <span class="hidden sm:inline">Beranda</span>
+            </a>
+            @auth
+                <a href="{{ url('/dashboard') }}" class="p-2 hover:bg-surface-container-low transition-colors rounded-full text-on-surface-variant flex items-center gap-1 font-label-md text-sm">
+                    <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    <span class="hidden sm:inline">Dashboard</span>
+                </a>
+            @else
+                <a href="{{ url('/login') }}" class="p-2 hover:bg-surface-container-low transition-colors rounded-full text-on-surface-variant flex items-center gap-1 font-label-md text-sm">
+                    <span class="material-symbols-outlined text-[20px]">account_circle</span>
+                    <span class="hidden sm:inline">Admin Login</span>
+                </a>
+            @endauth
+        </div>
+    </header>
 
-        <!-- Map -->
-        <div id="map" class="flex-1 h-full"></div>
-    </div>
+    <!-- Main Content Area: Sidebar + Map -->
+    <main class="flex flex-1 mt-[64px] relative h-[calc(100vh-64px)]">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-[30%] min-w-[320px] md:min-w-[360px] md:max-w-[420px] bg-surface-container-lowest border-r border-outline-variant flex flex-col z-40 overflow-hidden shadow-sm">
+            <!-- Mobile Search Bar -->
+            <div class="p-sm md:hidden border-b border-outline-variant bg-surface-container-low">
+                <div class="relative items-center flex">
+                    <span class="material-symbols-outlined absolute left-md text-on-surface-variant pointer-events-none">search</span>
+                    <input oninput="filterResidents(this.value)" class="w-full bg-surface-container-lowest border border-outline-variant rounded px-xl py-xs pl-[48px] focus:ring-2 focus:ring-primary focus:outline-none text-body-md text-on-surface" placeholder="Cari Nama Warga atau Alamat..." type="text"/>
+                </div>
+            </div>
+
+            <!-- Filters / Header -->
+            <div class="p-md border-b border-outline-variant bg-surface-container-low flex justify-between items-center shrink-0">
+                <div>
+                    <h2 class="text-card-title font-card-title text-on-surface">Data Warga Gandekan</h2>
+                    <p class="text-label-xs text-on-surface-variant" id="resident-count-label">Klik kartu untuk navigasi peta</p>
+                </div>
+                @auth
+                    <a href="{{ route('admin.create') }}" class="bg-primary-container text-on-primary-container px-md py-xs rounded font-button-text text-button-text hover:bg-[#EAB308] transition-colors flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-[18px]">add</span>
+                        Tambah
+                    </a>
+                @endauth
+            </div>
+
+            <!-- Resident Card List (Scrollable) -->
+            <div id="resident-list" class="flex-1 overflow-y-auto custom-scrollbar p-sm space-y-sm"></div>
+        </aside>
+
+        <!-- Right Map Area -->
+        <section class="flex-1 relative bg-surface-dim overflow-hidden h-full">
+            <div id="map" class="w-full h-full"></div>
+        </section>
+    </main>
 
     <script>
         const map = L.map('map').setView([-7.7316946528213, 110.33960979406231], 16);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
         const residents = @json($residents);
         const markers = [];
-        let activeMarker = null;
+        let selectedResidentId = null;
 
         function buildList(data) {
             const list = document.getElementById('resident-list');
+            const countLabel = document.getElementById('resident-count-label');
+            countLabel.textContent = `${data.length} rumah warga terdata`;
+
             if (data.length === 0) {
-                list.innerHTML = '<div class="px-4 py-12 text-center text-gray-400">Tidak ada hasil pencarian</div>';
+                list.innerHTML = `
+                    <div class="p-xl text-center text-on-surface-variant">
+                        <span class="material-symbols-outlined text-[36px] block mx-auto mb-2 opacity-50">search_off</span>
+                        <p class="font-label-md">Tidak ada data warga yang cocok.</p>
+                    </div>
+                `;
                 return;
             }
-            list.innerHTML = data.map(r => `
-                <div class="resident-item group p-4 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 border border-transparent hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200" data-lat="${r.latitude}" data-lng="${r.longitude}" data-id="${r.id}" onclick="focusResident(${r.latitude}, ${r.longitude}, ${r.id})">
-                    <div class="flex items-start justify-between mb-2">
-                        <div class="font-semibold text-sm text-gray-900 dark:text-white pr-2">${r.nama_pemilik}</div>
-                        <span class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-full whitespace-nowrap">ID: ${r.id}</span>
+
+            list.innerHTML = data.map(r => {
+                const isActive = selectedResidentId === r.id;
+                const cardClass = isActive 
+                    ? 'bg-surface-container border-l-4 border-primary p-md cursor-pointer transition-all hover:bg-surface-container-high group border-t border-b border-r border-outline-variant rounded-r' 
+                    : 'bg-surface-container-lowest border-l-4 border-outline-variant p-md cursor-pointer transition-all hover:bg-surface-container-low border border-outline-variant rounded-r';
+                
+                const iconClass = isActive ? 'text-primary' : 'text-on-surface-variant opacity-30';
+
+                return `
+                    <div class="${cardClass}" onclick="focusResident(${r.latitude}, ${r.longitude}, ${r.id})">
+                        <div class="flex justify-between items-start">
+                            <div class="overflow-hidden">
+                                <p class="text-card-title font-card-title text-on-surface truncate">${r.nama_pemilik}</p>
+                                <p class="text-body-md text-on-surface-variant truncate mt-xs">${r.alamat}</p>
+                            </div>
+                            <span class="material-symbols-outlined ${iconClass} shrink-0 ml-2">location_on</span>
+                        </div>
+                        <div class="mt-sm flex flex-wrap gap-xs items-center">
+                            <span class="px-xs py-[2px] bg-surface-variant text-on-surface-variant text-label-xs rounded">Rumah Warga</span>
+                            <a class="px-xs py-[2px] bg-secondary-container text-on-secondary-container text-label-xs rounded inline-flex items-center gap-1 hover:bg-secondary-fixed-dim transition-colors ml-auto" href="https://www.google.com/maps/dir/?api=1&destination=${r.latitude},${r.longitude}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                                <span class="material-symbols-outlined text-[14px]">near_me</span>
+                                Navigasi
+                            </a>
+                        </div>
                     </div>
-                    <div class="text-xs text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">${r.alamat}</div>
-                    <a class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 transition-colors inline-flex items-center gap-1" href="https://www.google.com/maps/dir/?api=1&destination=${r.latitude},${r.longitude}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
-                        Navigasi
-                    </a>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function focusResident(lat, lng, id) {
-            map.flyTo([lat, lng], 18, { animate: true, duration: 1.2 });
+            selectedResidentId = id;
+            buildList(residents);
+            map.flyTo([lat, lng], 18, { animate: true, duration: 1.0 });
             markers.forEach(m => {
                 if (m.options.residentId === id) {
-                    setTimeout(() => m.openPopup(), 400);
+                    setTimeout(() => m.openPopup(), 300);
                 }
             });
         }
 
         function filterResidents(query) {
             const q = query.toLowerCase();
-            buildList(residents.filter(r => 
+            const filtered = residents.filter(r => 
                 r.nama_pemilik.toLowerCase().includes(q) || 
                 r.alamat.toLowerCase().includes(q)
-            ));
+            );
+            buildList(filtered);
         }
 
         residents.forEach(r => {
             const m = L.marker([r.latitude, r.longitude]);
             m.options.residentId = r.id;
             m.addTo(map);
+            
             m.bindPopup(`
-                <div class="font-sans">
-                    <div class="font-semibold text-sm text-gray-900 mb-1">${r.nama_pemilik}</div>
-                    <div class="text-xs text-gray-600 mb-3 max-w-xs">${r.alamat}</div>
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=${r.latitude},${r.longitude}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors">
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
-                        Navigasi
-                    </a>
+                <div class="bg-surface-container-lowest w-[280px] p-md">
+                    <h3 class="text-card-title font-card-title text-on-surface flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-primary text-[18px]">location_on</span>
+                        ${r.nama_pemilik}
+                    </h3>
+                    <p class="text-body-md text-on-surface-variant mt-xs">${r.alamat}</p>
+                    <div class="mt-md flex gap-sm">
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=${r.latitude},${r.longitude}" target="_blank" rel="noopener" class="flex-1 bg-secondary-container text-on-secondary-container px-md py-xs rounded font-button-text text-button-text hover:bg-secondary-fixed-dim transition-colors flex justify-center items-center gap-xs text-decoration-none">
+                            <span class="material-symbols-outlined text-[18px]">near_me</span>
+                            Rute Navigasi
+                        </a>
+                    </div>
                 </div>
             `);
+
+            m.on('click', () => {
+                selectedResidentId = r.id;
+                buildList(residents);
+            });
+
             markers.push(m);
         });
+
         buildList(residents);
     </script>
 </body>
