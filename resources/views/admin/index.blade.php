@@ -1,10 +1,26 @@
 <x-app-layout>
-    <div class="py-stack-lg px-gutter bg-background min-h-screen">
+    <div class="py-stack-lg px-gutter bg-background min-h-screen" x-data="{ showDeleteModal: false, deleteUrl: '', deleteName: '' }">
         <div class="max-w-container-max mx-auto space-y-stack-md">
-            @if (session('success'))
-                <div class="p-md rounded-xl bg-tertiary-container text-on-tertiary-container border border-outline-variant text-body-md flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[20px]">check_circle</span>
-                    {{ session('success') }}
+            <!-- Themed Flash Notifications -->
+            @if (session('success_create'))
+                <div class="p-md rounded-xl bg-primary-container text-on-primary-container border border-primary/30 text-body-md font-label-md flex items-center gap-2.5 shadow-sm">
+                    <span class="material-symbols-outlined text-[22px]">add_circle</span>
+                    <span>{{ session('success_create') }}</span>
+                </div>
+            @elseif (session('success_edit'))
+                <div class="p-md rounded-xl bg-secondary-container text-on-secondary-container border border-secondary/40 text-body-md font-label-md flex items-center gap-2.5 shadow-sm">
+                    <span class="material-symbols-outlined text-[22px]">edit_square</span>
+                    <span>{{ session('success_edit') }}</span>
+                </div>
+            @elseif (session('success_delete'))
+                <div class="p-md rounded-xl bg-error-container text-on-error-container border border-error/30 text-body-md font-label-md flex items-center gap-2.5 shadow-sm">
+                    <span class="material-symbols-outlined text-[22px]">delete_forever</span>
+                    <span>{{ session('success_delete') }}</span>
+                </div>
+            @elseif (session('success'))
+                <div class="p-md rounded-xl bg-surface-container text-on-surface border border-outline-variant text-body-md font-label-md flex items-center gap-2.5 shadow-sm">
+                    <span class="material-symbols-outlined text-[22px]">check_circle</span>
+                    <span>{{ session('success') }}</span>
                 </div>
             @endif
 
@@ -51,13 +67,14 @@
                                                 <span class="material-symbols-outlined text-[16px]">edit</span>
                                                 Edit
                                             </a>
-                                            <form action="{{ route('admin.destroy', $w) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data warga ini?')" class="inline">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="px-3 py-1.5 text-label-sm bg-error-container text-on-error-container hover:bg-error/20 rounded transition-colors inline-flex items-center gap-1">
-                                                    <span class="material-symbols-outlined text-[16px]">delete</span>
-                                                    Hapus
-                                                </button>
-                                            </form>
+                                            <button 
+                                                type="button" 
+                                                @click="showDeleteModal = true; deleteUrl = '{{ route('admin.destroy', $w) }}'; deleteName = '{{ e($w->nama_pemilik) }}'" 
+                                                class="px-3 py-1.5 text-label-sm bg-error-container text-on-error-container hover:bg-error/20 rounded transition-colors inline-flex items-center gap-1"
+                                            >
+                                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                                                Hapus
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -86,5 +103,8 @@
                 </div>
             @endif
         </div>
+
+        <!-- Custom Delete Confirmation Modal Partial -->
+        @include('admin.partials.delete-modal')
     </div>
 </x-app-layout>

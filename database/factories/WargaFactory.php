@@ -30,8 +30,8 @@ class WargaFactory extends Factory
         return [
             'nama_pemilik' => fake('id_ID')->name(),
             'alamat' => "Jl. {$street} No. {$number}, RT {$rt} / RW {$rw}, Gandekan, Tlogoadi, Mlati, Sleman",
-            'latitude' => (double) $latitude,
-            'longitude' => (double) $longitude,
+            'latitude' => (float) $latitude,
+            'longitude' => (float) $longitude,
         ];
     }
 }

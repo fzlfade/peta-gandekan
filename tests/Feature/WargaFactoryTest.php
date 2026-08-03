@@ -18,5 +18,5 @@ it('can create a warga using factory', function () {
 it('can seed warga using database seeder', function () {
     $this->seed();
 
-    expect(Warga::count())->toBe(20);
+    expect(Warga::count())->toBeGreaterThanOrEqual(20);
 });

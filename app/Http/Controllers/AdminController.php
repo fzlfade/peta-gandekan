@@ -32,7 +32,9 @@ class AdminController extends Controller
 
         Warga::create($validated);
 
-        return redirect()->route('admin.index')->with('success', 'Data berhasil ditambahkan.');
+        return redirect()->route('admin.index')
+            ->with('success', 'Data warga berhasil ditambahkan.')
+            ->with('success_create', 'Data warga berhasil ditambahkan.');
     }
 
     public function edit(Warga $warga): View
@@ -51,7 +53,18 @@ class AdminController extends Controller
 
         $warga->update($validated);
 
-        return redirect()->route('admin.index')->with('success', 'Data berhasil diperbarui.');
+        return redirect()->route('admin.index')
+            ->with('success', 'Data warga berhasil diperbarui.')
+            ->with('success_edit', 'Data warga berhasil diperbarui.');
+    }
+
+    public function destroy(Warga $warga): RedirectResponse
+    {
+        $warga->delete();
+
+        return redirect()->route('admin.index')
+            ->with('success', 'Data warga berhasil dihapus.')
+            ->with('success_delete', 'Data warga berhasil dihapus.');
     }
 
     public function map()
